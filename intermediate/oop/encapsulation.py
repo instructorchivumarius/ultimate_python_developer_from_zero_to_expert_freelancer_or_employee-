@@ -3,10 +3,13 @@
 #
 # [2] Private and Protected Variables
 #     We continue in the same file encapsulation.py from the previous lesson.
-#     In this lesson, we focus on access levels:
-#       • Protected attributes → start with one underscore: _name
-#       • Private attributes   → start with two underscores: __name (name-mangling)
-#     We keep previous code and add safe access examples.
+#     We focused on access levels (_protected, __private) and safe internal access.
+#
+# [3] Getters and Setters
+#     We continue in the same file encapsulation.py.
+#     In this lesson, we add methods to READ and UPDATE private data safely:
+#       • Getter → returns a private value in a controlled way
+#       • Setter → updates a private value in a controlled way (optionally validate)
 #____________________________________________________________________________________________
 
 
@@ -35,6 +38,19 @@ class Vehicle:
         print("Engine number:", self.__engine_number)
 
 
+    # [3]-1 GETTER METHOD
+    def get_engine_number(self):
+        return self.__engine_number
+
+    # [3]-2 SETTER METHOD
+    def set_engine_number(self, new_number):
+        # (optional simple validation for demo; keep it very basic)
+        if isinstance(new_number, str) and new_number.strip():
+            self.__engine_number = new_number
+        else:
+            print("Invalid engine number. Update skipped.")
+
+
 # [1]-3 CREATE OBJECT
 car = Vehicle()
 
@@ -46,18 +62,25 @@ car = Vehicle()
 # [1]-5 TRY TO ACCESS ATTRIBUTES DIRECTLY (kept from previous lesson)
 # print("Public brand:", car.brand)
 # print("Protected fuel capacity (not recommended):", car._fuel_capacity)
-
 # Uncommenting the next line would cause an error
 # print("Private engine number:", car.__engine_number)
 
 
+# [2]-2 ACCESS PROTECTED ATTRIBUTE (works, but not recommended) — not used in this lesson
+# print("Accessing protected fuel capacity:", car._fuel_capacity)
 
-# [2]-2 ACCESS PROTECTED ATTRIBUTE (works, but not recommended)
-print("Accessing protected fuel capacity:", car._fuel_capacity)
-
-# [2]-3 TRY TO ACCESS PRIVATE ATTRIBUTE (this would raise an error)
-# Uncommenting the next line would cause an error:
+# [2]-3 TRY TO ACCESS PRIVATE ATTRIBUTE (would raise an error) — not used in this lesson
 # print("Accessing private engine number:", car.__engine_number)
 
-# [2]-4 USE METHOD TO ACCESS PRIVATE ATTRIBUTE SAFELY
-car.show_attributes()
+# [2]-4 USE METHOD TO ACCESS PRIVATE ATTRIBUTE SAFELY — not used in this lesson
+# car.show_attributes()
+
+
+# [3]-3 USE GETTER
+print("Engine number (via getter):", car.get_engine_number())
+
+# [3]-4 USE SETTER
+car.set_engine_number("ENG-98765")
+
+# [3]-5 USE GETTER AGAIN
+print("Updated engine number (via getter):", car.get_engine_number())
