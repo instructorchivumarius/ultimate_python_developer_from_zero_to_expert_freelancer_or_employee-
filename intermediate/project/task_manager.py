@@ -4,6 +4,8 @@
 #     Extending the CLI with JSON data saving
 # (3) Loading and Viewing Tasks
 #     Allowing the user to load and display tasks
+# (4) Editing and Deleting Tasks
+#     Modify or remove tasks and persist the changes
 # ___________________________________________________________
 
 
@@ -90,6 +92,77 @@ def list_tasks_filtered(term):
 
 
 
+# ▬ (4-1) Helper: “Select_Task_Index()” 
+#           ► Shows the list, asks for a 1-based index, validates input
+#           ► Returns a 0-based index or None if cancelled/invalid ▬
+def select_task_index(action_label: str) -> int | None:
+    """Show tasks and ask user to choose by number; return 0-based index or None"""
+    if not tasks:
+        print("No tasks to select.")
+        return None
+
+    list_tasks()
+    raw = input(f"Enter the task number to {action_label} (or press Enter to cancel): ").strip()
+    if not raw:
+        print("Cancelled.")
+        return None
+
+    if not raw.isdigit():
+        print("Invalid input. Please enter a number.")
+        return None
+
+    idx_1_based = int(raw)
+    if not (1 <= idx_1_based <= len(tasks)):
+        print(f"Out of range. Please choose between 1 and {len(tasks)}.")
+        return None
+
+    return idx_1_based - 1
+
+
+
+# ▬ (4-2) “Edit_Task()” Function 
+#           ► Lets the user change the text of a chosen task
+#           ► Persists the change to JSON using save_tasks() ▬
+def edit_task():
+    """Edit an existing task, then save"""
+    idx = select_task_index("edit")
+    if idx is None:
+        return
+
+    old = tasks[idx]
+    print(f"Current task: {old}")
+    new_text = input("Enter the new text (leave empty to keep unchanged): ").strip()
+    if not new_text:
+        print("No changes made.")
+        return
+
+    tasks[idx] = new_text
+    save_tasks()
+    print(f"Task #{idx + 1} updated.")
+
+
+
+# ▬ (4-3) “Delete_Task()” Function 
+#           ► Confirms and removes a chosen task
+#           ► Persists the change to JSON using save_tasks() ▬
+def delete_task():
+    """Delete an existing task after confirmation, then save"""
+    idx = select_task_index("delete")
+    if idx is None:
+        return
+
+    to_delete = tasks[idx]
+    confirm = input(f'Confirm delete "{to_delete}"? (y/N): ').strip().lower()
+    if confirm != "y":
+        print("Delete cancelled.")
+        return
+
+    removed = tasks.pop(idx)
+    save_tasks()
+    print(f'Deleted: "{removed}"')
+
+
+
 # ▬ (1-2) “MAIN()” FUNCTION → WITH LOOP ▬
 def main():
     """Main program loop that runs until user exits"""
@@ -118,9 +191,13 @@ def main():
             else:
                 print("Empty task discarded.") 
         elif choice == "3":
-            print("Editing a task... (to be implemented)")
+            # ▼ (4-4) Edit flow ▼
+            edit_task()
+
         elif choice == "4":
-            print("Deleting a task... (to be implemented)")
+            # ▼ (4-5) Delete flow ▼
+            delete_task()
+
         elif choice == "5":
             print("Exiting... Goodbye!")
             break
