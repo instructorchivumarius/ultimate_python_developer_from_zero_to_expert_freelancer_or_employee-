@@ -1,0 +1,4 @@
+# Create a virtual environment named .venv
+
+# Windows (PowerShell)
+py -m venv .venv

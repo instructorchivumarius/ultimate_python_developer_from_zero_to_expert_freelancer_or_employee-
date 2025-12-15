@@ -1,0 +1,10 @@
+# Activate the virtual environment and install a package
+
+# Windows (PowerShell)
+
+# Activation:
+.venv\Scripts\Activate.ps1
+
+
+# (Optional) See what's installed
+pip list
