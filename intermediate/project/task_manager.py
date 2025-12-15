@@ -2,7 +2,10 @@
 #     A simple command-line menu for our Task Manager project
 # (2) Saving Data to JSON File
 #     Extending the CLI with JSON data saving
+# (3) Loading and Viewing Tasks
+#     Allowing the user to load and display tasks
 # ___________________________________________________________
+
 
 
 # ▼ (2-1) Import Modules for Saving Task Data ▼
@@ -12,8 +15,8 @@ from pathlib import Path
 
 
 # ▼ (2-3) “Tasks” List (In-Memory)
-#                       ► Stores all tasks while the program runs
-#                       ► “tasks.json” will be created automatically when saving ▼
+#           ► Stores all tasks while the program runs
+#           ► “tasks.json” will be created automatically when saving ▼
 tasks = []
 
 # ▼ (2-4) Data File Path (Always Next to this Script) ▼
@@ -21,11 +24,12 @@ DATA_FILE = Path(__file__).with_name("tasks.json")
 
 
 
-# ▬ (1-1) “Show_Menu()” Function ▬
+# ▬ (1-1) “SHOW MENU()” FUNCTION ▬
 def show_menu():
     """Display the main menu options"""
     print("\n--- Task Manager ---")
-    print("1. View Tasks")
+    # (3-1) We modify the display to clarify "All / Filter"
+    print("1. View Tasks (All / Filter)") 
     print("2. Add Task")
     print("3. Edit Task")
     print("4. Delete Task")
@@ -45,15 +49,65 @@ def save_tasks():
 
 
 
-# ▬ (1-2) “Main()” Function ▬
+# ▬ (3-2) “Load_Tasks()” Function ▬
+#            ► Reads existing tasks from tasks.json
+#            ► If file does not exist → start with empty list
+def load_tasks():
+    """Load tasks from tasks.json (if it exists)"""
+    global tasks
+    if DATA_FILE.exists():
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            tasks = json.load(f)
+    else:
+        tasks = []
+
+
+
+# ▬ (3-3) “List_Tasks()” Function ▬
+#            ► Displays all tasks, with numbering
+def list_tasks():
+    """Display all tasks in a numbered list"""
+    if not tasks:
+        print("No tasks found.")
+    else:
+        print("\nYour Tasks:")
+        for i, task in enumerate(tasks, start=1):
+            print(f"{i}. {task}")
+
+
+
+# ▬ (3-4) “List_Tasks_Filtered()” Function ▬
+#                      ► Displays only tasks that contain the search term
+def list_tasks_filtered(term):
+    """Display tasks containing the search term"""
+    filtered = [t for t in tasks if term.lower() in t.lower()]
+    if not filtered:
+        print(f'No tasks found containing: "{term}"')
+    else:
+        print(f'\nTasks containing "{term}":')
+        for i, task in enumerate(filtered, start=1):
+            print(f"{i}. {task}")
+
+
+
+# ▬ (1-2) “MAIN()” FUNCTION → WITH LOOP ▬
 def main():
-    """Main Program Loop that Runs Until User Exits (updated to save tasks)"""
+    """Main program loop that runs until user exits"""
+    
+    # (3-5) Load tasks at startup
+    load_tasks()
+
     while True:
         show_menu()
         choice = input("Choose an option: ")
 
         if choice == "1":
-            print("Viewing tasks... (to be implemented)")
+             # (3-6) Ask user: show all tasks or filter by keyword
+            term = input("Enter search term (leave empty to view all): ").strip()
+            if term:
+                list_tasks_filtered(term)
+            else:
+                list_tasks() 
         elif choice == "2":
             # ▼ (2-6) Add a task and save it to JSON ▼
             task = input("Enter new task: ").strip()
@@ -62,7 +116,7 @@ def main():
                 save_tasks()         # (2-5) persist immediately
                 # print(f"Saved to: {DATA_FILE.resolve()}")  # optional debug
             else:
-                print("Empty task discarded.")
+                print("Empty task discarded.") 
         elif choice == "3":
             print("Editing a task... (to be implemented)")
         elif choice == "4":
@@ -75,6 +129,6 @@ def main():
 
 
 
-# ▬ (1-3) “MAIN()” BLOCK ▬
+# ▬ (1-3) “MAIN()” FUNCTION → INTO “MAIN” BLOCK ▬
 if __name__ == "__main__":
     main()
