@@ -6,6 +6,8 @@
 #     Allowing the user to load and display tasks
 # (4) Editing and Deleting Tasks
 #     Modify or remove tasks and persist the changes
+# (5) Safe Exit & Auto-Save Before Closing
+#     Confirm exit and always save before quitting
 # ___________________________________________________________
 
 
@@ -14,6 +16,8 @@
 import json
 # ▼ (2-2) Ensure JSON is saved next to this script (not IDE working dir) ▼
 from pathlib import Path
+# ▼ (5-3) Import error class for safe JSON loading (handles empty/corrupted files) ▼
+from json import JSONDecodeError
 
 
 # ▼ (2-3) “Tasks” List (In-Memory)
@@ -35,7 +39,8 @@ def show_menu():
     print("2. Add Task")
     print("3. Edit Task")
     print("4. Delete Task")
-    print("5. Exit")
+    # (5-1) Update Exit label to communicate auto-save behavior
+    print("5. Exit (Save & Quit)") 
 
 
 
@@ -58,8 +63,18 @@ def load_tasks():
     """Load tasks from tasks.json (if it exists)"""
     global tasks
     if DATA_FILE.exists():
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            tasks = json.load(f)
+        # (5-4) Harden loading: handle empty/corrupted JSON and validate structure
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    tasks = data
+                else:
+                    print("Warning: tasks.json has unexpected format. Starting with empty list.")
+                    tasks = []
+        except JSONDecodeError:
+            print("Warning: tasks.json is empty or corrupted. Starting with empty list.")
+            tasks = [] 
     else:
         tasks = []
 
@@ -163,6 +178,22 @@ def delete_task():
 
 
 
+# ▬ (5-2) “Confirm_Exit()” Function ▬
+#           ► Ask user to confirm exit
+#           ► Auto-save all tasks before quitting
+def confirm_exit() -> bool:
+    """Confirm exit and save before quitting"""
+    confirm = input("Are you sure you want to exit? (y/N): ").strip().lower()
+    if confirm == "y":
+        # Always persist latest state before exit
+        save_tasks()
+        print("All tasks saved. Goodbye!")
+        return True
+    print("Exit cancelled.")
+    return False
+
+
+
 # ▬ (1-2) “MAIN()” FUNCTION → WITH LOOP ▬
 def main():
     """Main program loop that runs until user exits"""
@@ -199,8 +230,9 @@ def main():
             delete_task()
 
         elif choice == "5":
-            print("Exiting... Goodbye!")
-            break
+            # (5-5) Safe Exit: confirm + auto-save before quitting
+            if confirm_exit():
+                break
         else:
             print("Invalid option. Please try again.")
 
