@@ -1,0 +1,2 @@
+# Install emoji package from PyPI
+pip install emoji
