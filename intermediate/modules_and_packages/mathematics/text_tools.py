@@ -1,4 +1,4 @@
-# A module inside our mathematics package for text operations.
+# Text tools module inside the package.
 
 def shout(text):
     return text.upper() + "!!!"

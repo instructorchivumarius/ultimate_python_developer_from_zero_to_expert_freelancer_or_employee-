@@ -1,5 +1,5 @@
-# II-3.5 Creating Your Own Packages “mathematics”
-# A module inside our mathematics package for math operations.
+# Importing from Packages
+# Math tools module inside the package.
 
 def add(a, b):
     return a + b
